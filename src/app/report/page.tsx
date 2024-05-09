@@ -47,7 +47,7 @@ function Page() {
         </div>
         <div>
           <textarea
-            className="textarea textarea-bordered w-full "
+            className="textarea textarea-bordered w-full"
             placeholder="Complaints..."
           ></textarea>
         </div>
