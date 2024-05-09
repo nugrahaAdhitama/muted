@@ -79,11 +79,11 @@ const LocationMarker: React.FC<LocationMarkerProps> = ({ initialCenter }) => {
       )}
 
       {reports &&
-        reports.map((report, index) => {
-          if (report.lat !== undefined && report.lng !== undefined) {
-            return (
+        reports.map(
+          (report) =>
+            report.lat !== undefined &&
+            report.lng !== undefined && (
               <Circle
-                key={index}
                 center={[report.lat, report.lng]}
                 radius={1000}
                 pathOptions={{
@@ -92,10 +92,8 @@ const LocationMarker: React.FC<LocationMarkerProps> = ({ initialCenter }) => {
                   color: "orange",
                 }}
               />
-            );
-          }
-          return null;
-        })}
+            )
+        )}
     </>
   );
 };
