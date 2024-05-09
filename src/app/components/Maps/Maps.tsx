@@ -1,8 +1,8 @@
-'use client';
-import axios from 'axios';
-import React, { useEffect, useState } from 'react';
-import 'leaflet/dist/leaflet.css';
-import { MapContainer, TileLayer, Marker, Circle, useMap } from 'react-leaflet';
+"use client";
+import axios from "axios";
+import React, { useEffect, useState } from "react";
+import "leaflet/dist/leaflet.css";
+import { MapContainer, TileLayer, Marker, Circle, useMap } from "react-leaflet";
 
 interface LatLng {
   lat: number;
@@ -30,22 +30,20 @@ const LocationMarker: React.FC<LocationMarkerProps> = ({ initialCenter }) => {
     // Fetch data from the API endpoint
     async function fetchReports() {
       try {
-        const response = await axios.get('/api/reports');
+        const response = await axios.get("/api/reports");
         // Update state with fetched data
         setReports(response.data);
       } catch (error) {
-        console.error('Error fetching data:', error);
+        console.error("Error fetching data:", error);
       }
     }
 
-    // Call the fetchReports function when component mounts
+    // Call the fetchReports function when the component mounts
     fetchReports();
-
-    console.log(reports);
   }, []);
 
   useEffect(() => {
-    setPosition(initialCenter); // Ensure the initial position is set
+    setPosition(initialCenter); // Make sure the initial position is set
 
     const watchID = navigator.geolocation.watchPosition(
       (pos) => {
@@ -58,9 +56,9 @@ const LocationMarker: React.FC<LocationMarkerProps> = ({ initialCenter }) => {
       },
       (err) => {
         if (err.code === 1) {
-          alert('Error: Access is denied!');
+          alert("Error: Access is denied!");
         } else {
-          alert('Error: Unknown!');
+          alert("Error: Unknown!");
         }
       }
     );
@@ -70,17 +68,34 @@ const LocationMarker: React.FC<LocationMarkerProps> = ({ initialCenter }) => {
     };
   }, [map, initialCenter]);
 
-  return position && (
+  return (
     <>
       <Marker position={[position.lat, position.lng]} />
       {position.accuracy && !isNaN(position.accuracy) && (
-        <Circle center={[position.lat, position.lng]} radius={position.accuracy} />
+        <Circle
+          center={[position.lat, position.lng]}
+          radius={position.accuracy}
+        />
       )}
 
-      {reports && reports.map(report => (
-        <Circle center={[report.lat, report.lng]} radius={1000}
-        pathOptions={{ fillColor: 'orange', fillOpacity:0.3, color: 'orange' }} />
-      ))}
+      {reports &&
+        reports.map((report, index) => {
+          if (report.lat !== undefined && report.lng !== undefined) {
+            return (
+              <Circle
+                key={index}
+                center={[report.lat, report.lng]}
+                radius={1000}
+                pathOptions={{
+                  fillColor: "orange",
+                  fillOpacity: 0.3,
+                  color: "orange",
+                }}
+              />
+            );
+          }
+          return null;
+        })}
     </>
   );
 };
@@ -92,15 +107,15 @@ const Maps: React.FC<{ style: React.CSSProperties }> = ({ style }) => {
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         const { latitude, longitude } = pos.coords;
-        if (!isNaN(latitude) && !isNaN(longitude)) { // Additional checks to ensure lat and lng are not NaN
+        if (!isNaN(latitude) && !isNaN(longitude)) {
           setCenter({ lat: latitude, lng: longitude });
         }
       },
       (err) => {
         if (err.code === 1) {
-          alert('Error: Access is denied!');
+          alert("Error: Access is denied!");
         } else {
-          alert('Error: Unknown!');
+          alert("Error: Unknown!");
         }
         // Fallback to a default location if geolocation access is denied or an error occurs
         setCenter({ lat: 51.505, lng: -0.09 });
@@ -114,13 +129,11 @@ const Maps: React.FC<{ style: React.CSSProperties }> = ({ style }) => {
   }
 
   return (
-    <MapContainer
-      center={center}
-      zoom={13}
-      style={style}
-      zoomControl={false}
-    >
-      <TileLayer url="https://tile.openstreetmap.org/{z}/{x}/{y}.png" maxZoom={19} />
+    <MapContainer center={center} zoom={13} style={style} zoomControl={false}>
+      <TileLayer
+        url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
+        maxZoom={19}
+      />
       <LocationMarker initialCenter={center} />
     </MapContainer>
   );
