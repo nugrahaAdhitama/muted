@@ -1,4 +1,5 @@
 'use client';
+import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import 'leaflet/dist/leaflet.css';
 import { MapContainer, TileLayer, Marker, Circle, useMap } from 'react-leaflet';
@@ -13,10 +14,35 @@ interface LocationMarkerProps {
   initialCenter: LatLng;
 }
 
+interface Report {
+  lat?: number;
+  lng?: number;
+  accuracy?: number;
+}
+
 // Component to handle geolocation updates and display marker/circle
 const LocationMarker: React.FC<LocationMarkerProps> = ({ initialCenter }) => {
   const [position, setPosition] = useState<LatLng>(initialCenter);
   const map = useMap();
+  const [reports, setReports] = useState<Report[]>([]);
+
+  useEffect(() => {
+    // Fetch data from the API endpoint
+    async function fetchReports() {
+      try {
+        const response = await axios.get('/api/reports');
+        // Update state with fetched data
+        setReports(response.data);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    }
+
+    // Call the fetchReports function when component mounts
+    fetchReports();
+
+    console.log(reports);
+  }, []);
 
   useEffect(() => {
     setPosition(initialCenter); // Ensure the initial position is set
@@ -50,6 +76,11 @@ const LocationMarker: React.FC<LocationMarkerProps> = ({ initialCenter }) => {
       {position.accuracy && !isNaN(position.accuracy) && (
         <Circle center={[position.lat, position.lng]} radius={position.accuracy} />
       )}
+
+      {reports && reports.map(report => (
+        <Circle center={[report.lat, report.lng]} radius={1000}
+        pathOptions={{ fillColor: 'orange', fillOpacity:0.3, color: 'orange' }} />
+      ))}
     </>
   );
 };
