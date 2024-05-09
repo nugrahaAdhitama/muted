@@ -3,24 +3,31 @@ import React, { useEffect, useState } from 'react';
 import 'leaflet/dist/leaflet.css';
 import { MapContainer, TileLayer, Marker, Circle, useMap } from 'react-leaflet';
 
+interface LatLng {
+  lat: number;
+  lng: number;
+  accuracy?: number;
+}
+
+interface LocationMarkerProps {
+  initialCenter: LatLng;
+}
+
 // Component to handle geolocation updates and display marker/circle
-const LocationMarker = ({ initialCenter }) => {
-  const [position, setPosition] = useState(initialCenter);
+const LocationMarker: React.FC<LocationMarkerProps> = ({ initialCenter }) => {
+  const [position, setPosition] = useState<LatLng>(initialCenter);
   const map = useMap();
 
   useEffect(() => {
-    setPosition(initialCenter); // Ensure position is initially set
+    setPosition(initialCenter); // Ensure the initial position is set
 
     const watchID = navigator.geolocation.watchPosition(
       (pos) => {
         const { latitude, longitude, accuracy } = pos.coords;
-        if (!isNaN(accuracy)) { // Ensure accuracy is not NaN
+        if (!isNaN(accuracy)) {
           const newPos = { lat: latitude, lng: longitude, accuracy };
           setPosition(newPos);
           map.flyTo(newPos, map.getZoom());
-
-          const circle = L.circle([newPos.lat, newPos.lng], { radius: accuracy });
-          map.fitBounds(circle.getBounds());
         }
       },
       (err) => {
@@ -39,22 +46,22 @@ const LocationMarker = ({ initialCenter }) => {
 
   return position && (
     <>
-      <Marker position={position} />
+      <Marker position={[position.lat, position.lng]} />
       {position.accuracy && !isNaN(position.accuracy) && (
-        <Circle center={position} radius={position.accuracy} />
+        <Circle center={[position.lat, position.lng]} radius={position.accuracy} />
       )}
     </>
   );
 };
 
 const Maps: React.FC<{ style: React.CSSProperties }> = ({ style }) => {
-  const [center, setCenter] = useState(null);
+  const [center, setCenter] = useState<LatLng | null>(null);
 
   useEffect(() => {
     navigator.geolocation.getCurrentPosition(
       (pos) => {
-        const { latitude, longitude, accuracy } = pos.coords;
-        if (!isNaN(accuracy)) { // Ensure initial accuracy is not NaN
+        const { latitude, longitude } = pos.coords;
+        if (!isNaN(latitude) && !isNaN(longitude)) { // Additional checks to ensure lat and lng are not NaN
           setCenter({ lat: latitude, lng: longitude });
         }
       },
