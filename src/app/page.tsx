@@ -1,6 +1,10 @@
 "use client";
+
+import dynamic from "next/dynamic";
 import { useState } from "react";
-import Maps from "./components/Maps/Maps";
+const Maps = dynamic(() => import("./components/Maps/Maps"), {
+  ssr: false,
+});
 import Navbar from "@/app/components/Navbar/Navbar";
 import Search from "./components/Search/Search";
 import Avatar from "./components/Avatar/Avatar";
